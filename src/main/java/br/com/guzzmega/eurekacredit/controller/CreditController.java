@@ -1,18 +1,55 @@
 package br.com.guzzmega.eurekacredit.controller;
 
+import br.com.guzzmega.eurekacredit.controller.exception.CustomerNotFoundException;
+import br.com.guzzmega.eurekacredit.controller.exception.MicroserviceCommunicationErrorException;
+import br.com.guzzmega.eurekacredit.domain.CustomerScore;
+import br.com.guzzmega.eurekacredit.domain.CustomerStatus;
+import br.com.guzzmega.eurekacredit.domain.Score;
+import br.com.guzzmega.eurekacredit.service.CreditService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
 @RequestMapping("credits")
 public class CreditController {
 
+	@Autowired
+	private CreditService service;
+
 	@GetMapping("/health")
 	public String status(){
 		log.info("Checking credits microservice status...");
 		return "Credits Application Status: UP!";
+	}
+
+	@GetMapping("/{document}")
+	public ResponseEntity getCustomerStatus(@PathVariable(value="document") String document){
+		try{
+			CustomerStatus customerStatus = service.getCustomerStatus(document);
+			return ResponseEntity.status(HttpStatus.OK).body(customerStatus);
+
+		} catch(CustomerNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch(MicroserviceCommunicationErrorException e) {
+			return ResponseEntity.status(HttpStatus.resolve(e.getStatus())).body(e.getMessage());
+		}
+	}
+
+
+	@PostMapping
+	public ResponseEntity postScore(@RequestBody Score score){
+		try{
+			CustomerScore customerScore = service.postScore(score.getDocument(), score.getIncome());
+			return ResponseEntity.ok(customerScore);
+
+		} catch(CustomerNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch(MicroserviceCommunicationErrorException e) {
+			return ResponseEntity.status(HttpStatus.resolve(e.getStatus())).body(e.getMessage());
+		}
 	}
 }
