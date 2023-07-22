@@ -12,7 +12,7 @@ import java.util.List;
 public interface CardClient {
 
 	@GetMapping(params = "document")
-	ResponseEntity<List<Card>> getCardByClient(@RequestParam("document") String document);
+	ResponseEntity<List<Card>> getCardByCustomer(@RequestParam("document") String document);
 
 	@GetMapping(params = "income")
 	ResponseEntity<List<Card>> getCardByIncome(@RequestParam("income") Long income);

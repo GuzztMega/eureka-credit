@@ -1,10 +1,12 @@
 package br.com.guzzmega.eurekacredit.service;
 
-import br.com.guzzmega.eurekacredit.controller.exception.CustomerNotFoundException;
-import br.com.guzzmega.eurekacredit.controller.exception.MicroserviceCommunicationErrorException;
+import br.com.guzzmega.eurekacredit.domain.exception.CardEmissionErrorException;
+import br.com.guzzmega.eurekacredit.domain.exception.CustomerNotFoundException;
+import br.com.guzzmega.eurekacredit.domain.exception.MicroserviceCommunicationErrorException;
 import br.com.guzzmega.eurekacredit.domain.*;
 import br.com.guzzmega.eurekacredit.infra.client.CardClient;
 import br.com.guzzmega.eurekacredit.infra.client.CustomerClient;
+import br.com.guzzmega.eurekacredit.infra.mqueue.CardEmissionPublisher;
 import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,22 +14,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class CreditService {
 
 	@Autowired
+	private CardClient cardClient;
+
+	@Autowired
 	private CustomerClient customerClient;
 
 	@Autowired
-	private CardClient cardClient;
+	private CardEmissionPublisher publisher;
 
 	public CustomerStatus getCustomerStatus(String document) throws CustomerNotFoundException, MicroserviceCommunicationErrorException{
 		try{
 			ResponseEntity<Customer> customerResponse = customerClient.getCustomer(document);
-			ResponseEntity<List<Card>> cardResponse = cardClient.getCardByClient(document);
+			ResponseEntity<List<Card>> cardResponse = cardClient.getCardByCustomer(document);
 
 			return CustomerStatus.builder().customer(customerResponse.getBody()).cardList(cardResponse.getBody()).build();
 
@@ -61,6 +68,16 @@ public class CreditService {
 			}
 
 			throw new MicroserviceCommunicationErrorException(ex.getMessage(), ex.status());
+		}
+	}
+
+	public Protocol requestCard(CardEmission cardEmission){
+		try {
+			publisher.requestCard(cardEmission);
+			return new Protocol(UUID.randomUUID(), LocalDateTime.now());
+
+		} catch(Exception ex) {
+			throw new CardEmissionErrorException(ex.getMessage());
 		}
 	}
 }

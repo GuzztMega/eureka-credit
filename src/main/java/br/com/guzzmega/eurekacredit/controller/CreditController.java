@@ -1,10 +1,9 @@
 package br.com.guzzmega.eurekacredit.controller;
 
-import br.com.guzzmega.eurekacredit.controller.exception.CustomerNotFoundException;
-import br.com.guzzmega.eurekacredit.controller.exception.MicroserviceCommunicationErrorException;
-import br.com.guzzmega.eurekacredit.domain.CustomerScore;
-import br.com.guzzmega.eurekacredit.domain.CustomerStatus;
-import br.com.guzzmega.eurekacredit.domain.Score;
+import br.com.guzzmega.eurekacredit.domain.*;
+import br.com.guzzmega.eurekacredit.domain.exception.CardEmissionErrorException;
+import br.com.guzzmega.eurekacredit.domain.exception.CustomerNotFoundException;
+import br.com.guzzmega.eurekacredit.domain.exception.MicroserviceCommunicationErrorException;
 import br.com.guzzmega.eurekacredit.service.CreditService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,6 @@ public class CreditController {
 		}
 	}
 
-
 	@PostMapping
 	public ResponseEntity postScore(@RequestBody Score score){
 		try{
@@ -50,6 +48,16 @@ public class CreditController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		} catch(MicroserviceCommunicationErrorException e) {
 			return ResponseEntity.status(HttpStatus.resolve(e.getStatus())).body(e.getMessage());
+		}
+	}
+
+	@PostMapping("/request-card")
+	public ResponseEntity requestCard(@RequestBody CardEmission cardEmission){
+		try{
+			Protocol protocol = service.requestCard(cardEmission);
+			return ResponseEntity.ok(protocol);
+		}catch(CardEmissionErrorException ex){
+			return ResponseEntity.internalServerError().body(ex.getMessage());
 		}
 	}
 }

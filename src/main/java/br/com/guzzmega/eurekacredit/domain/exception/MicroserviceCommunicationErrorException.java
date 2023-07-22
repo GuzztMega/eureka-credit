@@ -1,4 +1,4 @@
-package br.com.guzzmega.eurekacredit.controller.exception;
+package br.com.guzzmega.eurekacredit.domain.exception;
 
 import lombok.Getter;
 
