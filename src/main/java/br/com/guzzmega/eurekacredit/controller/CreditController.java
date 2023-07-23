@@ -31,10 +31,12 @@ public class CreditController {
 			CustomerStatus customerStatus = service.getCustomerStatus(document);
 			return ResponseEntity.status(HttpStatus.OK).body(customerStatus);
 
-		} catch(CustomerNotFoundException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		} catch(MicroserviceCommunicationErrorException e) {
-			return ResponseEntity.status(HttpStatus.resolve(e.getStatus())).body(e.getMessage());
+		} catch(CustomerNotFoundException ex) {
+			log.error("Customer data couldn't be found: {}", ex.getMessage());
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+		} catch(MicroserviceCommunicationErrorException ex) {
+			log.error("Failed to communicate with client: {}", ex.getMessage());
+			return ResponseEntity.status(HttpStatus.resolve(ex.getStatus())).body(ex.getMessage());
 		}
 	}
 
@@ -44,10 +46,12 @@ public class CreditController {
 			CustomerScore customerScore = service.postScore(score.getDocument(), score.getIncome());
 			return ResponseEntity.ok(customerScore);
 
-		} catch(CustomerNotFoundException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		} catch(MicroserviceCommunicationErrorException e) {
-			return ResponseEntity.status(HttpStatus.resolve(e.getStatus())).body(e.getMessage());
+		} catch(CustomerNotFoundException ex) {
+			log.error("Customer data couldn't be found: {}", ex.getMessage());
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+		} catch(MicroserviceCommunicationErrorException ex) {
+			log.error("Failed to communicate with client: {}", ex.getMessage());
+			return ResponseEntity.status(HttpStatus.resolve(ex.getStatus())).body(ex.getMessage());
 		}
 	}
 
@@ -57,6 +61,7 @@ public class CreditController {
 			Protocol protocol = service.requestCard(cardEmission);
 			return ResponseEntity.ok(protocol);
 		}catch(CardEmissionErrorException ex){
+			log.error("Failed to request credit card: {}", ex.getMessage());
 			return ResponseEntity.internalServerError().body(ex.getMessage());
 		}
 	}
