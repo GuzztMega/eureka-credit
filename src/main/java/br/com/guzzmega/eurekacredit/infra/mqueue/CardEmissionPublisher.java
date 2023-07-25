@@ -1,6 +1,6 @@
 package br.com.guzzmega.eurekacredit.infra.mqueue;
 
-import br.com.guzzmega.eurekacredit.domain.CardEmission;
+import br.com.guzzmega.eurekacards.domain.CardEmission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Queue;

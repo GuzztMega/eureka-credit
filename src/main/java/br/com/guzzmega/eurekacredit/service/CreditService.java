@@ -1,5 +1,6 @@
 package br.com.guzzmega.eurekacredit.service;
 
+import br.com.guzzmega.eurekacards.domain.CardEmission;
 import br.com.guzzmega.eurekacredit.domain.exception.CardEmissionErrorException;
 import br.com.guzzmega.eurekacredit.domain.exception.CustomerNotFoundException;
 import br.com.guzzmega.eurekacredit.domain.exception.MicroserviceCommunicationErrorException;

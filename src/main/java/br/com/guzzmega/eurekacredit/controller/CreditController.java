@@ -1,5 +1,6 @@
 package br.com.guzzmega.eurekacredit.controller;
 
+import br.com.guzzmega.eurekacards.domain.CardEmission;
 import br.com.guzzmega.eurekacredit.domain.*;
 import br.com.guzzmega.eurekacredit.domain.exception.CardEmissionErrorException;
 import br.com.guzzmega.eurekacredit.domain.exception.CustomerNotFoundException;
